@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Input.h"
 
 #include <iostream>
 using namespace std;
@@ -24,9 +25,15 @@ namespace mg {
 
     glfwSetWindowTitle(this->name.c_str());
 
+    glDisable(GL_DEPTH_TEST);
+
     glMatrixMode(GL_PROJECTION);
-    gluPerspective(45, 1.0, 10.0, 200.0);
+    glLoadIdentity();
+    glOrtho(0, this->width, this->height, 0, 0, 1);
     glMatrixMode(GL_MODELVIEW);
+
+    this->input = new Input;
+    Input::init();
   }
 
   void Game::run() {
@@ -37,12 +44,17 @@ namespace mg {
     while (!this->paused) {
       double newTime = glfwGetTime();
       double frameTime = newTime - currentTime;
-      currentTime = newTime;
+      if (frameTime > 0.25) {
+        frameTime = 0.25;
+      }
 
+      currentTime = newTime;
       accumulator += frameTime;
 
       while (accumulator >= dt) {
+        Input::poll();
         this->update(dt);
+        Input::clear();
         accumulator -= dt;
       }
 
@@ -51,7 +63,7 @@ namespace mg {
   }
 
   void Game::render(double dt) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     this->draw(dt);
     glfwSwapBuffers();
   }

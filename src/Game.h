@@ -8,6 +8,8 @@
 #include <string>
 using namespace std;
 
+#include "Input.h"
+
 namespace mg {
   class Game {
     string name;
@@ -15,15 +17,17 @@ namespace mg {
     int height;
     bool paused;
 
+    Input* input;
+
     public:
       Game(const string &name, int w, int h);
-      void init();
-      void run();
-      void quit(int code);
+      virtual void init();
+      virtual void run();
+      virtual void quit(int code);
 
-      void update(double dt);
-      void render(double dt);
-      void draw(double dt);
+      virtual void update(double dt);
+      virtual void render(double dt);
+      virtual void draw(double dt);
   };
 }
 
