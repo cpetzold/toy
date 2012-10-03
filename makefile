@@ -12,7 +12,7 @@ BINPATH=bin
 
 INC=$(SRCPATH)/mage.h
 SRC=$(SRCPATH)/mage.cc
-OBJS=$(OBJPATH)/mage.o $(OBJPATH)/Game.o $(OBJPATH)/Input.o $(OBJPATH)/Color.o
+OBJS=$(OBJPATH)/mage.o $(OBJPATH)/Game.o $(OBJPATH)/Input.o $(OBJPATH)/Color.o $(OBJPATH)/draw.o
 OUT=$(LIBPATH)/libmage.a
 
 all: $(OUT)

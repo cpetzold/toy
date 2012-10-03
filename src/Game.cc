@@ -35,8 +35,20 @@ namespace mg {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, this->width, this->height, 0, 0, 1);
+
+    glViewport(0, 0, this->width, -this->height);
+    gluOrtho2D(0, this->width, this->height, 0);
+
+    glfwSwapInterval(1);
+
+    glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     Color black;
     this->setBackgroundColor(black);
