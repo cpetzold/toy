@@ -17,7 +17,7 @@ namespace mg {
       static void poll();
       static void clear();
 
-      static void keyCallback(int key, int action);
+      static void handleKey(int key, int action);
 
       static bool keyPressed(int key);
       static bool keyReleased(int key);

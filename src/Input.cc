@@ -9,7 +9,7 @@ namespace mg {
   map<int, bool> Input::keysReleased;
 
   void GLFWCALL keyCallbackWrapper(int key, int action) {
-    Input::keyCallback(key, action);
+    Input::handleKey(key, action);
   }
 
   void Input::init() {
@@ -25,7 +25,7 @@ namespace mg {
     Input::keysReleased.clear();
   }
 
-  void Input::keyCallback(int key, int action) {
+  void Input::handleKey(int key, int action) {
     if (action == GLFW_PRESS) {
       Input::keysPressed[key] = true;
     } else {
