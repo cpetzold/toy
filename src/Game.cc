@@ -7,6 +7,7 @@ using namespace std;
 namespace mg {
 
   static int GLFWCALL closeCallbackWrapper();
+  static void GLFWCALL resizeCallbackWrapper(int width, int height);
 
   Game* Game::instance;
 
@@ -29,26 +30,17 @@ namespace mg {
     }
 
     glfwSetWindowTitle(this->name.c_str());
-    glfwSetWindowCloseCallback(closeCallbackWrapper);
-
-    glDisable(GL_DEPTH_TEST);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    glViewport(0, 0, this->width, -this->height);
-    gluOrtho2D(0, this->width, this->height, 0);
 
     glfwSwapInterval(1);
+
+    glfwSetWindowCloseCallback(closeCallbackWrapper);
+    glfwSetWindowSizeCallback(resizeCallbackWrapper);
 
     glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    
 
     Color black;
     this->setBackgroundColor(black);
@@ -59,6 +51,14 @@ namespace mg {
 
   static int GLFWCALL closeCallbackWrapper() {
     Game::instance->handleClose();
+  }
+
+  static void GLFWCALL resizeCallbackWrapper(int width, int height) {
+    Game::instance->handleResize(width, height);
+  }
+
+  void Game::resize(int width, int height) {
+    glfwSetWindowSize(width, height);
   }
 
   void Game::setBackgroundColor(Color& c) {
@@ -123,6 +123,18 @@ namespace mg {
 
   void Game::handleClose() {
     this->quit(0);
+  }
+
+  void Game::handleResize(int width, int height) {
+    this->width = width;
+    this->height = height;
+
+    glViewport(0, 0, this->width, this->height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, this->width, this->height, 0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
   }
 
   void Game::update(double dt) {

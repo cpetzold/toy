@@ -28,6 +28,8 @@ namespace mg {
       virtual void run();
       virtual void quit(int code);
 
+      void resize(int width, int height);
+      void handleResize();
       void setBackgroundColor(Color& c);
 
       virtual void pause();
@@ -35,8 +37,9 @@ namespace mg {
       virtual void togglePause();
 
       virtual void handleClose();
-
       virtual void handleInput(double dt);
+      virtual void handleResize(int width, int height);
+
       virtual void update(double dt);
       virtual void render(double dt);
       virtual void draw(double dt);
