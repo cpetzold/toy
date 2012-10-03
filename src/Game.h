@@ -6,29 +6,33 @@
 #include <GL/glfw.h>
 
 #include <string>
+#include <list>
 using namespace std;
 
 #include "Input.h"
 #include "Color.h"
+#include "Sprite.h"
 
 namespace mg {
   class Game {
     string name;
-    int width;
-    int height;
+    GLint width;
+    GLint height;
     bool paused;
 
     Input* input;
 
     public:
+      list<Sprite*> layers[10];
+
       static Game* instance;
 
-      Game(const string &name, int w, int h);
+      Game(const string &name, GLint w, GLint h);
       virtual void init();
       virtual void run();
-      virtual void quit(int code);
+      virtual void quit(GLint code);
 
-      void resize(int width, int height);
+      void resize(GLint width, GLint height);
       void handleResize();
       void setBackgroundColor(Color& c);
 
@@ -37,12 +41,12 @@ namespace mg {
       virtual void togglePause();
 
       virtual void handleClose();
-      virtual void handleInput(double dt);
-      virtual void handleResize(int width, int height);
+      virtual void handleInput(GLdouble dt);
+      virtual void handleResize(GLint width, GLint height);
 
-      virtual void update(double dt);
-      virtual void render(double dt);
-      virtual void draw(double dt);
+      virtual void update(GLdouble dt);
+      virtual void render(GLdouble dt);
+      virtual void draw(GLdouble dt);
   };
 }
 

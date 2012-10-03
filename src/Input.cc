@@ -5,10 +5,10 @@ using namespace std;
 
 namespace mg {
 
-  map<int, bool> Input::keysPressed;
-  map<int, bool> Input::keysReleased;
+  map<GLint, bool> Input::keysPressed;
+  map<GLint, bool> Input::keysReleased;
 
-  void GLFWCALL keyCallbackWrapper(int key, int action) {
+  void GLFWCALL keyCallbackWrapper(GLint key, GLint action) {
     Input::handleKey(key, action);
   }
 
@@ -25,7 +25,7 @@ namespace mg {
     Input::keysReleased.clear();
   }
 
-  void Input::handleKey(int key, int action) {
+  void Input::handleKey(GLint key, GLint action) {
     if (action == GLFW_PRESS) {
       Input::keysPressed[key] = true;
     } else {
@@ -33,15 +33,15 @@ namespace mg {
     }
   }
 
-  bool Input::keyPressed(int key) {
+  bool Input::keyPressed(GLint key) {
     return Input::keysPressed[key];
   }
 
-  bool Input::keyReleased(int key) {
+  bool Input::keyReleased(GLint key) {
     return Input::keysReleased[key];
   }
 
-  bool Input::keyDown(int key) {
+  bool Input::keyDown(GLint key) {
     return glfwGetKey(key) == GLFW_PRESS; 
   }
 

@@ -11,7 +11,7 @@ namespace mg {
 
   Game* Game::instance;
 
-  Game::Game(const string &name, int w, int h) {
+  Game::Game(const string &name, GLint w, GLint h) {
     this->name = name;
     this->width = w;
     this->height = h;
@@ -53,11 +53,11 @@ namespace mg {
     Game::instance->handleClose();
   }
 
-  static void GLFWCALL resizeCallbackWrapper(int width, int height) {
+  static void GLFWCALL resizeCallbackWrapper(GLint width, GLint height) {
     Game::instance->handleResize(width, height);
   }
 
-  void Game::resize(int width, int height) {
+  void Game::resize(GLint width, GLint height) {
     glfwSetWindowSize(width, height);
   }
 
@@ -66,13 +66,13 @@ namespace mg {
   }
 
   void Game::run() {
-    const double dt = 0.01;
-    double currentTime = glfwGetTime();
-    double accumulator = 0.0;
+    const GLdouble dt = 0.01;
+    GLdouble currentTime = glfwGetTime();
+    GLdouble accumulator = 0.0;
 
     while (true) {
-      double newTime = glfwGetTime();
-      double frameTime = newTime - currentTime;
+      GLdouble newTime = glfwGetTime();
+      GLdouble frameTime = newTime - currentTime;
       if (frameTime > 0.25) {
         frameTime = 0.25;
       }
@@ -96,7 +96,7 @@ namespace mg {
     }
   }
 
-  void Game::quit(int code) {
+  void Game::quit(GLint code) {
     glfwTerminate();
     exit(code);
   }
@@ -117,7 +117,7 @@ namespace mg {
     }
   }
 
-  void Game::handleInput(double dt) {
+  void Game::handleInput(GLdouble dt) {
 
   }
 
@@ -125,7 +125,7 @@ namespace mg {
     this->quit(0);
   }
 
-  void Game::handleResize(int width, int height) {
+  void Game::handleResize(GLint width, GLint height) {
     this->width = width;
     this->height = height;
 
@@ -137,18 +137,30 @@ namespace mg {
     glLoadIdentity();
   }
 
-  void Game::update(double dt) {
+  void Game::update(GLdouble dt) {
     
+    list<Sprite*>::iterator it;
+    for (unsigned int i = 0; i < 10; i++) {
+      for (it = this->layers[i].begin(); it != this->layers[i].end(); ++it) {
+        (*it)->update(dt);
+      }
+    }
   }
 
-  void Game::render(double dt) {
+  void Game::render(GLdouble dt) {
     glClear(GL_COLOR_BUFFER_BIT);
     this->draw(dt);
     glfwSwapBuffers();
   }
 
-  void Game::draw(double dt) {
-    
+  void Game::draw(GLdouble dt) {
+
+    list<Sprite*>::iterator it;
+    for (unsigned int i = 0; i < 10; i++) {
+      for (it = this->layers[i].begin(); it != this->layers[i].end(); ++it) {
+        (*it)->draw(dt);
+      }
+    }
   }
 
 }
