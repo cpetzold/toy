@@ -2,8 +2,17 @@
 
 namespace mg {
 
+  void Vec::operator=(const Vec &v) {
+    this->x = v.x;
+    this->y = v.y;
+  }
+
   Vec Vec::operator*(GLfloat scalar) const {
     return Vec(this->x * scalar, this->y * scalar);
+  }
+  void Vec::operator*=(const Vec &v) {
+    this->x *= v.x;
+    this->y *= v.y;
   }
   void Vec::operator*=(GLfloat scalar) {
     this->x *= scalar;

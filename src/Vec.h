@@ -15,8 +15,11 @@ namespace mg {
       
       Vec(GLfloat x = 0, GLfloat y = 0): x(x), y(y) {};
       ~Vec() {};
+
+      void operator=(const Vec &v);
       
       Vec operator*(GLfloat scalar) const;
+      void operator*=(const Vec &v);
       void operator*=(GLfloat scalar);
       
       Vec operator/(GLfloat scalar) const;

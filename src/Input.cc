@@ -45,4 +45,8 @@ namespace mg {
     return glfwGetKey(key) == GLFW_PRESS; 
   }
 
+  bool Input::mouseDown(int button) {
+    return glfwGetMouseButton(button);
+  }
+
 }

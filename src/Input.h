@@ -22,6 +22,8 @@ namespace mg {
       static bool keyPressed(int key);
       static bool keyReleased(int key);
       static bool keyDown(int key);
+
+      static bool mouseDown(int button);
   };
 }
 

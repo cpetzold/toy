@@ -14,7 +14,7 @@ namespace mg {
       Vec pos;
 
       Sprite(GLfloat x, GLfloat y);
-      Sprite(Vec pos);
+      Sprite(Vec pos = Vec());
 
       virtual void update(GLdouble dt);
       virtual void draw(GLdouble dt) const;
