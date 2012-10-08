@@ -1,6 +1,4 @@
-CC=g++
-CCFLAGS=-framework OpenGL -framework Cocoa -lglfw
-
+CC=cc
 AR=ar
 ARFLAGS=rcs
 
@@ -10,9 +8,11 @@ OBJPATH=obj
 LIBPATH=lib
 BINPATH=bin
 
+CCFLAGS=-I$(INCPATH) -Wall
+
+SRC=$(wildcard $(SRCPATH)/*.cc)
+OBJS=$(patsubst $(SRCPATH)%.cc, $(OBJPATH)%.o, $(SRC))
 INC=$(SRCPATH)/mage.h
-SRC=$(SRCPATH)/mage.cc
-OBJS=$(OBJPATH)/mage.o $(OBJPATH)/Game.o $(OBJPATH)/Input.o $(OBJPATH)/Color.o $(OBJPATH)/draw.o $(OBJPATH)/Sprite.o $(OBJPATH)/Vec.o
 OUT=$(LIBPATH)/libmage.a
 
 all: $(OUT)

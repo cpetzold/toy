@@ -51,6 +51,7 @@ namespace mg {
 
   static int GLFWCALL closeCallbackWrapper() {
     Game::instance->handleClose();
+    return 1;
   }
 
   static void GLFWCALL resizeCallbackWrapper(GLint width, GLint height) {
