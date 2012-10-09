@@ -49,4 +49,10 @@ namespace mg {
     return glfwGetMouseButton(button);
   }
 
+  Vec Input::mousePos() {
+    int x, y;
+    glfwGetMousePos(&x, &y);
+    return Vec(x, y);
+  }
+
 }

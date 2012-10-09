@@ -6,6 +6,8 @@
 #include <map>
 using namespace std;
 
+#include "Vec.h"
+
 namespace mg {
   class Input {
     public:
@@ -24,6 +26,7 @@ namespace mg {
       static bool keyDown(int key);
 
       static bool mouseDown(int button);
+      static Vec mousePos();
   };
 }
 

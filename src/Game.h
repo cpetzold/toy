@@ -15,14 +15,12 @@ using namespace std;
 
 namespace mg {
   class Game {
-    string name;
-    GLint width;
-    GLint height;
-    bool paused;
-
-    Input* input;
-
     public:
+      string name;
+      GLint width;
+      GLint height;
+      bool paused;
+      Input* input;
       list<Sprite*> layers[10];
 
       static Game* instance;

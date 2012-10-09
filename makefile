@@ -1,4 +1,4 @@
-CC=cc
+CC=c++
 AR=ar
 ARFLAGS=rcs
 
