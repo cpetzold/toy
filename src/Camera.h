@@ -12,7 +12,7 @@ namespace mg {
     public:
       Vec dim, pos;
 
-      Camera(Vec dim = Vec(800, 600), Vec pos = (0, 0));
+      Camera(Vec dim = Vec(800, 600), Vec pos = Vec(0, 0));
 
       
       

@@ -7,16 +7,31 @@
 #include <math.h>
 using namespace std;
 
+#include <node.h>
+using namespace v8;
+using namespace node;
+
 namespace mg {
 
-  class Vec {  
+  class Vec: public ObjectWrap {
     public:
       GLfloat x, y;
-      
+
       Vec(GLfloat x = 0, GLfloat y = 0): x(x), y(y) {};
       ~Vec() {};
 
+      static void init(Handle<Object> target);
+      
+      static Handle<Value> getX(Local<String> property, const AccessorInfo &info);
+      static void setX(Local<String> property, Local<Value> value, const AccessorInfo& info);
+      
+      static Handle<Value> getY(Local<String> property, const AccessorInfo &info);
+      static void setY(Local<String> property, Local<Value> value, const AccessorInfo& info);
+
+      static Handle<Value> print(const Arguments& args);
+      
       void operator=(const Vec &v);
+      // static Handle<Value> 
       
       Vec operator*(GLfloat scalar) const;
       void operator*=(const Vec &v);
@@ -46,6 +61,10 @@ namespace mg {
       void normalize();
       
       Vec randCenter(const Vec &v);
+
+    private:
+      static Handle<Value> newFunc(const Arguments& args);
+      
   };
 
 }

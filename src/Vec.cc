@@ -2,6 +2,62 @@
 
 namespace mg {
 
+  Handle<Value> Vec::newFunc(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = new Vec();
+    v->x = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
+    v->y = args[1]->IsUndefined() ? 0 : args[1]->NumberValue();
+    v->Wrap(args.This());
+    return args.This();
+  }
+
+  void Vec::init(Handle<Object> target) {
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(Vec::newFunc);
+    tpl->SetClassName(String::NewSymbol("Vec"));
+
+    Local<ObjectTemplate> instance = tpl->InstanceTemplate();
+    Local<ObjectTemplate> proto = tpl->PrototypeTemplate();
+
+    instance->SetInternalFieldCount(1);
+
+    instance->SetAccessor(String::New("x"), Vec::getX, Vec::setX);
+    instance->SetAccessor(String::New("y"), Vec::getY, Vec::setY);
+
+    proto->Set(String::NewSymbol("print"), FunctionTemplate::New(Vec::print)->GetFunction());
+
+    Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
+    target->Set(String::NewSymbol("Vec"), constructor);
+  }
+
+  Handle<Value> Vec::getX(Local<String> property, const AccessorInfo &info) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(info.This());
+    return scope.Close(Number::New(v->x));
+  }
+
+  void Vec::setX(Local<String> property, Local<Value> value, const AccessorInfo &info) {
+    Vec* v = ObjectWrap::Unwrap<Vec>(info.This());
+    v->x = value->NumberValue();
+  }
+
+  Handle<Value> Vec::getY(Local<String> property, const AccessorInfo &info) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(info.This());
+    return scope.Close(Number::New(v->y));
+  }
+
+  void Vec::setY(Local<String> property, Local<Value> value, const AccessorInfo &info) {
+    Vec* v = ObjectWrap::Unwrap<Vec>(info.This());
+    v->y = value->NumberValue();
+  }
+
+  Handle<Value> Vec::print(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
+    cout << v->x << "x" << v->y << endl;
+    return args.This();
+  }
+
   void Vec::operator=(const Vec &v) {
     this->x = v.x;
     this->y = v.y;
