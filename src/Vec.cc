@@ -11,21 +11,38 @@ namespace mg {
     return args.This();
   }
 
-  void Vec::init(Handle<Object> target) {
+  // Handle<Value> Vec::newInstance(const Arguments& args) {
+  //   HandleScope scope;
+
+  //   const unsigned argc = args.Length();
+  //   Handle<Value> argv[argc] = {};
+  //   for (unsigned i = 0; i < argc; i++) {
+  //     argv[i] = args[i];
+  //   }
+
+  //   Local<Object> instance = Vec::constructor->NewInstance(argc, argv);
+  //   return scope.Close(instance);
+  // }
+
+  Persistent<Function> Vec::constructor;
+
+  void Vec::bind(Handle<Object> target) {
     Local<FunctionTemplate> tpl = FunctionTemplate::New(Vec::newFunc);
     tpl->SetClassName(String::NewSymbol("Vec"));
 
     Local<ObjectTemplate> instance = tpl->InstanceTemplate();
-    Local<ObjectTemplate> proto = tpl->PrototypeTemplate();
-
     instance->SetInternalFieldCount(1);
-
     instance->SetAccessor(String::New("x"), Vec::getX, Vec::setX);
     instance->SetAccessor(String::New("y"), Vec::getY, Vec::setY);
 
-    proto->Set(String::NewSymbol("print"), FunctionTemplate::New(Vec::print)->GetFunction());
+    Local<ObjectTemplate> proto = tpl->PrototypeTemplate();
+    proto->Set(String::NewSymbol("mult"), FunctionTemplate::New(Vec::mult)->GetFunction());
+    proto->Set(String::NewSymbol("multSelf"), FunctionTemplate::New(Vec::multSelf)->GetFunction());
+    proto->Set(String::NewSymbol("div"), FunctionTemplate::New(Vec::div)->GetFunction());
+    proto->Set(String::NewSymbol("add"), FunctionTemplate::New(Vec::add)->GetFunction());
+    proto->Set(String::NewSymbol("addSelf"), FunctionTemplate::New(Vec::addSelf)->GetFunction());
 
-    Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
+    Vec::constructor = Persistent<Function>::New(tpl->GetFunction());
     target->Set(String::NewSymbol("Vec"), constructor);
   }
 
@@ -51,21 +68,38 @@ namespace mg {
     v->y = value->NumberValue();
   }
 
-  Handle<Value> Vec::print(const Arguments& args) {
-    HandleScope scope;
-    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
-    cout << v->x << "x" << v->y << endl;
-    return args.This();
-  }
-
   void Vec::operator=(const Vec &v) {
     this->x = v.x;
     this->y = v.y;
   }
 
+  Vec Vec::operator*(const Vec &v) const {
+    return Vec(this->x * v.x, this->y * v.y);
+  }
   Vec Vec::operator*(GLfloat scalar) const {
     return Vec(this->x * scalar, this->y * scalar);
   }
+  Handle<Value> Vec::mult(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
+    Vec r;
+
+    if (args[0]->IsNumber()) {
+      r = *v * args[0]->NumberValue();
+    } else if (args[0]->IsObject()) {
+      r = *v * *ObjectWrap::Unwrap<Vec>(args[0]->ToObject());
+    } else {
+      ThrowException(Exception::TypeError(String::New("Argument must either be a number or another Vec")));
+      return scope.Close(Undefined());
+    }
+
+    const unsigned argc = 2;
+    Handle<Value> argv[argc] = { Number::New(r.x), Number::New(r.y) };
+    Handle<Value> instance = Vec::constructor->NewInstance(argc, argv);
+
+    return scope.Close(instance);
+  }
+
   void Vec::operator*=(const Vec &v) {
     this->x *= v.x;
     this->y *= v.y;
@@ -74,17 +108,75 @@ namespace mg {
     this->x *= scalar;
     this->y *= scalar;
   }
+  Handle<Value> Vec::multSelf(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
+    if (args[0]->IsNumber()) {
+      v->operator*=(args[0]->NumberValue());
+    } else if (args[0]->IsObject()) {
+      v->operator*=(*ObjectWrap::Unwrap<Vec>(args[0]->ToObject()));
+    }
+    return scope.Close(args.This());
+  }
 
   Vec Vec::operator/(GLfloat scalar) const {
     return Vec(this->x / scalar, this->y / scalar);
+  }
+  Handle<Value> Vec::div(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
+    Vec r;
+
+    if (args[0]->IsNumber()) {
+      r = *v / args[0]->NumberValue();
+    } else {
+      ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
+      return scope.Close(Undefined());
+    }
+
+    const unsigned argc = 2;
+    Handle<Value> argv[argc] = { Number::New(r.x), Number::New(r.y) };
+    Handle<Value> instance = Vec::constructor->NewInstance(argc, argv);
+
+    return scope.Close(instance);
   }
 
   Vec Vec::operator+(const Vec &v) const {
     return Vec(this->x + v.x, this->y + v.y);
   }
+  Handle<Value> Vec::add(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
+    Vec r;
+
+    if (args[0]->IsObject()) {
+      r = *v + *ObjectWrap::Unwrap<Vec>(args[0]->ToObject());
+    } else {
+      ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
+      return scope.Close(Undefined());
+    }
+
+    const unsigned argc = 2;
+    Handle<Value> argv[argc] = { Number::New(r.x), Number::New(r.y) };
+    Handle<Value> instance = Vec::constructor->NewInstance(argc, argv);
+
+    return scope.Close(instance);
+  }
+
   void Vec::operator+=(const Vec &v) {
     this->x += v.x;
     this->y += v.y;
+  }
+  Handle<Value> Vec::addSelf(const Arguments& args) {
+    HandleScope scope;
+    Vec* v = ObjectWrap::Unwrap<Vec>(args.This());
+    if (args[0]->IsObject()) {
+      *v += *ObjectWrap::Unwrap<Vec>(args[0]->ToObject());
+    } else {
+      ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
+      return scope.Close(Undefined());
+    }
+    return scope.Close(args.This());
   }
 
   Vec Vec::operator-(const Vec &v) const {

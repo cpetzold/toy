@@ -5,19 +5,15 @@ using namespace std;
 
 namespace mg {
 
-  map<GLint, bool> Input::keysPressed;
-  map<GLint, bool> Input::keysReleased;
-
-  void GLFWCALL keyCallbackWrapper(GLint key, GLint action) {
-    Input::handleKey(key, action);
-  }
+  map<int, bool> Input::keysPressed;
+  map<int, bool> Input::keysReleased;
 
   void Input::init() {
-    glfwSetKeyCallback(keyCallbackWrapper);
+    
   }
 
   void Input::poll() {
-    glfwPollEvents();
+    
   }
 
   void Input::clear() {
@@ -25,33 +21,34 @@ namespace mg {
     Input::keysReleased.clear();
   }
 
-  void Input::handleKey(GLint key, GLint action) {
-    if (action == GLFW_PRESS) {
+  void Input::handleKey(int key, int action) {
+    if (action == 0) {
       Input::keysPressed[key] = true;
     } else {
       Input::keysReleased[key] = true;
     }
   }
 
-  bool Input::keyPressed(GLint key) {
+  bool Input::keyPressed(int key) {
     return Input::keysPressed[key];
   }
 
-  bool Input::keyReleased(GLint key) {
+  bool Input::keyReleased(int key) {
     return Input::keysReleased[key];
   }
 
-  bool Input::keyDown(GLint key) {
-    return glfwGetKey(key) == GLFW_PRESS; 
+  bool Input::keyDown(int key) {
+    
   }
 
   bool Input::mouseDown(int button) {
-    return glfwGetMouseButton(button);
+    
   }
 
   Vec Input::mousePos() {
-    int x, y;
-    glfwGetMousePos(&x, &y);
+    int x = 0;
+    int y = 0;
+
     return Vec(x, y);
   }
 

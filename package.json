@@ -9,7 +9,13 @@
     "url": "git://github.com/cpetzold/toy.git"
   },
   "scripts": {
-    "install": "node-gyp rebuild"
+    "install": "node-gyp rebuild",
+    "test": "./node_modules/mocha/bin/mocha -R spec",
+    "watch": "./node_modules/mocha/bin/mocha -R min -w"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "coffee-script": "*"
   },
   "license": "MIT"
 }

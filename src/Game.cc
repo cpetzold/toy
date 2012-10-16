@@ -6,99 +6,148 @@ using namespace std;
 
 namespace mg {
 
-  static int GLFWCALL closeCallbackWrapper();
-  static void GLFWCALL resizeCallbackWrapper(int width, int height);
+  Persistent<Function> Game::constructor;
 
-  Game* Game::instance;
+  Handle<Value> Game::newFunc(const Arguments& args) {
+    HandleScope scope;
 
-  Game::Game(const string &name, GLint w, GLint h) {
+    String::Utf8Value name(args[0]->ToString());
+
+    Game* g = new Game(string(*name), args[1]->IntegerValue(), args[2]->IntegerValue());
+    g->Wrap(args.This());
+    return args.This();
+  }
+
+  void Game::bind(Handle<Object> target) {
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(Game::newFunc);
+    tpl->SetClassName(String::NewSymbol("Game"));
+
+    Local<ObjectTemplate> instance = tpl->InstanceTemplate();
+    instance->SetInternalFieldCount(1);
+    // instance->SetAccessor(String::New("x"), Vec::getX, Vec::setX);
+    // instance->SetAccessor(String::New("y"), Vec::getY, Vec::setY);
+
+    Local<ObjectTemplate> proto = tpl->PrototypeTemplate();
+    proto->Set(String::NewSymbol("init"), FunctionTemplate::New(Game::init_)->GetFunction());
+    proto->Set(String::NewSymbol("run"), FunctionTemplate::New(Game::run_)->GetFunction());
+
+    Game::constructor = Persistent<Function>::New(tpl->GetFunction());
+    target->Set(String::NewSymbol("Game"), constructor);
+  }
+
+  Game::Game(const string &name, int w, int h) {
     this->name = name;
     this->width = w;
     this->height = h;
     this->paused = false;
+    this->window = NULL;
+    this->renderer = NULL;
   }
 
   void Game::init() {
-    Game::instance = this;
-
-    if (glfwInit() != GL_TRUE) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
       this->quit(1);
     }
 
-    if (glfwOpenWindow(this->width, this->height, 5, 6, 5, 0, 8, 0, GLFW_WINDOW) != GL_TRUE) {
+    this->window = SDL_CreateWindow(
+      this->name.c_str(),
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
+      this->width,
+      this->height,
+      SDL_WINDOW_SHOWN
+    );
+
+    if (this->window == NULL) {
       this->quit(1);
     }
 
-    glfwSetWindowTitle(this->name.c_str());
+    this->renderer = SDL_CreateRenderer(
+      this->window,
+      -1,
+      SDL_RENDERER_ACCELERATED
+    );
 
-    glfwSwapInterval(1);
-
-    glfwSetWindowCloseCallback(closeCallbackWrapper);
-    glfwSetWindowSizeCallback(resizeCallbackWrapper);
-
-    glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    
+    if (this->renderer == NULL) {
+      this->quit(1);
+    }
 
     Color black;
     this->setBackgroundColor(black);
+
+    SDL_RenderPresent(this->renderer);
 
     this->input = new Input;
     Input::init();
   }
 
-  static int GLFWCALL closeCallbackWrapper() {
-    Game::instance->handleClose();
-    return 1;
+  Handle<Value> Game::init_(const Arguments& args) {
+    HandleScope scope;
+    Game* g = ObjectWrap::Unwrap<Game>(args.This());
+    g->init();
+    return scope.Close(args.This());
   }
 
-  static void GLFWCALL resizeCallbackWrapper(GLint width, GLint height) {
-    Game::instance->handleResize(width, height);
-  }
-
-  void Game::resize(GLint width, GLint height) {
-    glfwSetWindowSize(width, height);
+  void Game::resize(int width, int height) {
+    //glfwSetWindowSize(width, height);
   }
 
   void Game::setBackgroundColor(Color& c) {
-    glClearColor(c.r, c.g, c.b, c.a);
+    SDL_SetRenderDrawColor(this->renderer, c.r, c.g, c.b, c.a);
+    this->clear();
+  }
+
+  void Game::clear() {
+    SDL_RenderClear(this->renderer);
   }
 
   void Game::run() {
-    const GLdouble dt = 0.01;
-    GLdouble currentTime = glfwGetTime();
-    GLdouble accumulator = 0.0;
+    this->init();
 
-    while (true) {
-      GLdouble newTime = glfwGetTime();
-      GLdouble frameTime = newTime - currentTime;
-      if (frameTime > 0.25) {
-        frameTime = 0.25;
-      }
+    SDL_Delay(100000);
 
-      currentTime = newTime;
-      accumulator += frameTime;
+    // const double dt = 0.01;
+    // uint64_t currentTime = SDL_GetPerformanceCounter();
+    // int accumulator = 0;
 
-      while (accumulator >= dt) {
-        Input::poll();
+    // while (true) {
+    //   uint64_t newTime = SDL_GetPerformanceCounter();
+    //   double frameTime = (newTime - currentTime) / double(SDL_GetPerformanceFrequency());
+    //   cout << currentTime << " - " << newTime << " - " << frameTime << " - " << SDL_GetPerformanceFrequency() << endl;
+    //   if (frameTime > 0.1) {
+    //     frameTime = 0.1;
+    //   }
 
-        this->handleInput(dt);
-        if (!this->paused) {
-          this->update(dt);
-        }
+    //   currentTime = newTime;
+    //   accumulator += frameTime;
 
-        Input::clear();
-        accumulator -= dt;
-      }
+    //   while (accumulator >= dt) {
+    //     Input::poll();
 
-      this->render(dt);
-    }
+    //     this->handleInput(dt);
+    //     if (!this->paused) {
+    //       this->update(dt);
+    //     }
+
+    //     Input::clear();
+    //     accumulator -= dt;
+    //   }
+
+    //   this->render(dt);
+    //   SDL_Delay(1);
+    // }
   }
 
-  void Game::quit(GLint code) {
-    glfwTerminate();
+  Handle<Value> Game::run_(const Arguments& args) {
+    HandleScope scope;
+    Game* g = ObjectWrap::Unwrap<Game>(args.This());
+    g->run();
+    return scope.Close(args.This());
+  }
+
+  void Game::quit(int code) {
+    SDL_DestroyWindow(this->window);
+    SDL_Quit();
     exit(code);
   }
 
@@ -118,7 +167,7 @@ namespace mg {
     }
   }
 
-  void Game::handleInput(GLdouble dt) {
+  void Game::handleInput(double dt) {
 
   }
 
@@ -126,19 +175,12 @@ namespace mg {
     this->quit(0);
   }
 
-  void Game::handleResize(GLint width, GLint height) {
+  void Game::handleResize(int width, int height) {
     this->width = width;
     this->height = height;
-
-    glViewport(0, 0, this->width, this->height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, this->width, this->height, 0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
   }
 
-  void Game::update(GLdouble dt) {
+  void Game::update(double dt) {
     
     list<Sprite*>::iterator it;
     for (unsigned int i = 0; i < 10; i++) {
@@ -148,13 +190,12 @@ namespace mg {
     }
   }
 
-  void Game::render(GLdouble dt) {
-    glClear(GL_COLOR_BUFFER_BIT);
-    this->draw(dt);
-    glfwSwapBuffers();
+  void Game::render(double dt) {
+    this->clear();
+    // this->draw(dt);
   }
 
-  void Game::draw(GLdouble dt) {
+  void Game::draw(double dt) {
 
     list<Sprite*>::iterator it;
     for (unsigned int i = 0; i < 10; i++) {

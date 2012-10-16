@@ -21,7 +21,10 @@
         'src/Vec.cc',
         'src/Vec.h'
       ],
-      'include_dirs': [ 'inc' ]
+      'include_dirs': [ 'inc' ],
+      'libraries': [
+        '-framework SDL2'
+      ]
     }
   ]
 }

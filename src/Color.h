@@ -8,13 +8,13 @@ using namespace std;
 namespace mg {
   class Color {
     public:
-      GLfloat r, g, b, a;
+      int r, g, b, a;
 
-      Color(GLfloat r = 0.0, GLfloat g = 0.0, GLfloat b = 0.0, GLfloat a = 1.0);
+      Color(int r = 0, int g = 0, int b = 0, int a = 255);
       Color(string hex);
 
-      void setRGBA(GLfloat r, GLfloat g, GLfloat b, GLfloat a = 1);
-      void setRGB(GLfloat r, GLfloat g, GLfloat b);
+      void setRGBA(int r, int g, int b, int a = 255);
+      void setRGB(int r, int g, int b);
       void setHEX(string hex);
   };
 }

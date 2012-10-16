@@ -2,7 +2,7 @@
 
 namespace mg {
 
-  Color::Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+  Color::Color(int r, int g, int b, int a) {
     this->setRGBA(r, g, b, a);
   }
 
@@ -10,14 +10,14 @@ namespace mg {
 
   }
 
-  void Color::setRGBA(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
-    this->r = r / 255.0;
-    this->g = g / 255.0;
-    this->b = b / 255.0;
+  void Color::setRGBA(int r, int g, int b, int a) {
+    this->r = r;
+    this->g = g;
+    this->b = b;
     this->a = a;
   }
 
-  void Color::setRGB(GLfloat r, GLfloat g, GLfloat b) {
+  void Color::setRGB(int r, int g, int b) {
     this->setRGBA(r, g, b);
   }
 
