@@ -11,15 +11,16 @@ using namespace std;
 namespace mg {
   class Input {
     public:
+      static map<int, bool> keysDown;
       static map<int, bool> keysPressed;
       static map<int, bool> keysReleased;
+
+      static bool closed;
 
       static void init();
 
       static void poll();
       static void clear();
-
-      static void handleKey(int key, int action);
 
       static bool keyPressed(int key);
       static bool keyReleased(int key);

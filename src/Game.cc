@@ -51,8 +51,8 @@ namespace mg {
 
     this->window = SDL_CreateWindow(
       this->name.c_str(),
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_CENTERED,
+      SDL_WINDOWPOS_CENTERED,
       this->width,
       this->height,
       SDL_WINDOW_SHOWN
@@ -104,38 +104,43 @@ namespace mg {
   void Game::run() {
     this->init();
 
-    SDL_Delay(100000);
+    const double dt = 0.01;
+    uint64_t currentTime = SDL_GetPerformanceCounter();
+    double accumulator = 0;
 
-    // const double dt = 0.01;
-    // uint64_t currentTime = SDL_GetPerformanceCounter();
-    // int accumulator = 0;
+    while (true) {
+      if (Input::closed) {
+        this->quit(1);
+      }
 
-    // while (true) {
-    //   uint64_t newTime = SDL_GetPerformanceCounter();
-    //   double frameTime = (newTime - currentTime) / double(SDL_GetPerformanceFrequency());
-    //   cout << currentTime << " - " << newTime << " - " << frameTime << " - " << SDL_GetPerformanceFrequency() << endl;
-    //   if (frameTime > 0.1) {
-    //     frameTime = 0.1;
-    //   }
+      uint64_t newTime = SDL_GetPerformanceCounter();
+      double frameTime = (newTime - currentTime) / double(SDL_GetPerformanceFrequency());
 
-    //   currentTime = newTime;
-    //   accumulator += frameTime;
+      if (frameTime > 0.1) {
+        frameTime = 0.1;
+      }
 
-    //   while (accumulator >= dt) {
-    //     Input::poll();
+      currentTime = newTime;
+      accumulator += frameTime;
 
-    //     this->handleInput(dt);
-    //     if (!this->paused) {
-    //       this->update(dt);
-    //     }
+      // cout << frameTime << " - " << accumulator << endl;
 
-    //     Input::clear();
-    //     accumulator -= dt;
-    //   }
+      while (accumulator >= dt) {
+        // cout << "polling" << endl;
+        Input::poll();
 
-    //   this->render(dt);
-    //   SDL_Delay(1);
-    // }
+        // this->handleInput(dt);
+        // if (!this->paused) {
+        //   this->update(dt);
+        // }
+
+        Input::clear();
+        accumulator -= dt;
+      }
+
+      this->render(dt);
+      SDL_Delay(1);
+    }
   }
 
   Handle<Value> Game::run_(const Arguments& args) {
@@ -193,6 +198,7 @@ namespace mg {
   void Game::render(double dt) {
     this->clear();
     // this->draw(dt);
+    SDL_RenderPresent(this->renderer);
   }
 
   void Game::draw(double dt) {
