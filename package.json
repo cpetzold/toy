@@ -1,17 +1,19 @@
 {
   "name": "toy",
   "version": "0.0.1",
-  "description": "2++ game engine",
+  "description": "2D game engine",
   "author": "Conner Petzold <cpetzold@gmail.com>",
-  "main": "./lib/toy.js",
+  "main": "./lib/toy",
   "repository": {
     "type": "git",
     "url": "git://github.com/cpetzold/toy.git"
   },
   "scripts": {
-    "install": "node-gyp rebuild",
     "test": "./node_modules/mocha/bin/mocha -R spec",
     "watch": "./node_modules/mocha/bin/mocha -R min -w"
+  },
+  "dependencies": {
+    "sdl2": "*"
   },
   "devDependencies": {
     "mocha": "*",
