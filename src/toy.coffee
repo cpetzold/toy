@@ -9,6 +9,7 @@ module.exports =
   Entity: require './entity'
   Dynamic: require './dynamic'
   Vector: require './vector'
+  Color: require './color'
 
   extends: (child, parent) ->
     for key in parent

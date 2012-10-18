@@ -9,6 +9,7 @@ module.exports = class Game extends events.EventEmitter
     @name ?= 'Toy'
     @dim ?= new Vector 800, 600
     @fps ?= 60
+    @paused = false
 
     @events = new Events @
 
@@ -16,16 +17,17 @@ module.exports = class Game extends events.EventEmitter
 
     @iflags ?= sdl.INIT_EVERYTHING
     @wflags ?= sdl.WINDOW_SHOWN
-    @vflags ?= sdl.RENDER_ACCELERATED
-
-    @_init()
+    @vflags ?= sdl.RENDERER_ACCELERATED
 
   _init: ->
     sdl.init @iflags
 
-    @window = sdl.createWindow sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, @dim.x, @dim.y, @wflags
+    c = sdl.WINDOWPOS_CENTERED
+    @window = sdl.createWindow @name, c, c, @dim.x, @dim.y, @wflags
 
-    # sdl.events.on 'QUIT', @quit
+    @renderer = sdl.createRenderer @window, -1, @vflags
+
+    @emit 'init'
     @init?()
 
   init: ->
@@ -33,11 +35,13 @@ module.exports = class Game extends events.EventEmitter
       @quit() if e.key is 'esc'
 
   run: ->
+    @_init()
+
     dt = 1.0 / @fps
     currentTime = sdl.getPerformanceCounter()
     accumulator = 0.0
 
-    while true222
+    while true
       newTime = sdl.getPerformanceCounter()
       frameTime = (newTime - currentTime) / sdl.getPerformanceFrequency()
 
@@ -48,11 +52,14 @@ module.exports = class Game extends events.EventEmitter
       while accumulator >= dt
         @events.poll()
 
-        accumulator -= dt
+        if not @paused
+          @_update dt
 
         @events.clear()
+        accumulator -= dt
 
-      @loop dt
+      @_render dt
+      sdl.delay 1
 
 
   _update: (dt) ->
@@ -60,24 +67,22 @@ module.exports = class Game extends events.EventEmitter
     @update dt
 
   update: (dt) ->
-    console.log 'game update'
     entity.update? dt for name, entity of @entities
     @
 
-  _draw: (dt) ->
-    @emit 'draw', dt
-    @draw dt
+  _render: (dt) ->
+    @emit 'render', dt
+    @render dt
 
-  draw: (dt) ->
+  render: (dt) ->
     @clear()
 
-    console.log 'game draw'
     entity.draw? @screen, dt for name, entity of @entities
     
-    sdl.flip @screen
+    sdl.renderPresent @renderer
 
   clear: ->
-    sdl.fillRect @screen, [ 0, 0, @dim.x, @dim.y ], 0x000
+    sdl.renderClear @renderer
 
   addEntity: (name, entity) ->
     if typeof name is 'string'
@@ -88,4 +93,6 @@ module.exports = class Game extends events.EventEmitter
 
   quit: =>
     @emit 'quit'
+    sdl.quit()
     process.exit 0
+

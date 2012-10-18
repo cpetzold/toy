@@ -1,13 +1,13 @@
 toy = require '../../..'
 
 module.exports = class Pong extends toy.Game
-  constructor: (name, w, h) ->
-    super name, w, h
+  constructor: ->
+    super
+      name: 'Pong'
+      dim: new toy.Vector 800, 600
+      bgcolor: new toy.Color()
 
-  init: ->
-    console.log 'init'
-    super()
+  update: (dt) ->
+    @quit() if @events.quit
 
-  run: ->
-    console.log 'run'
-    super()
+    super dt

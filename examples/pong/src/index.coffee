@@ -1,3 +1,3 @@
 Pong = require './pong'
-game = new Pong 'Pong', 800, 600 
+game = new Pong()
 game.run()

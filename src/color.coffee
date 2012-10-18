@@ -3,12 +3,9 @@ sdl = require 'sdl2'
 module.exports = class Color
   constructor: (@r = 0, @g = 0, @b = 0, @a = 255) ->
 
-  hex: 
-    (n) ->
+  hex: (n) ->
       (n < 16 ? '0' : '') + n.toString 16
-    
-
-
+  
   @parse: (str) ->
     if match = str.match Color.RGB
       console.log match
