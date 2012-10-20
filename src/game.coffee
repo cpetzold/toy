@@ -58,6 +58,7 @@ module.exports = class Game extends events.EventEmitter
         @events.clear()
         accumulator -= dt
 
+      @clear()
       @_render dt
       sdl.delay 1
 
@@ -75,10 +76,7 @@ module.exports = class Game extends events.EventEmitter
     @render dt
 
   render: (dt) ->
-    @clear()
-
     entity.draw? @screen, dt for name, entity of @entities
-    
     sdl.renderPresent @renderer
 
   clear: ->

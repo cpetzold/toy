@@ -10,9 +10,14 @@ module.exports = class Pong extends toy.Game
   update: (dt) ->
     @quit() if @events.quit
 
-    if @events.keyDown toy.sdl.K_SPACE
-      console.log 'space!'
+    super dt
 
-    console.log @events.mouse.pos
+  render: (dt) ->
+    rect =
+      x: 50
+      y: @events.mouse.pos.y - 50
+      w: 20
+      h: 100
+    toy.sdl.renderFillRect @renderer, rect
 
     super dt
