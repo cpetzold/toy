@@ -1,5 +1,8 @@
 sdl = require 'sdl2'
 
+Function::property = (prop, desc) ->
+  Object.defineProperty @prototype, prop, desc
+
 module.exports =
   sdl: sdl
 

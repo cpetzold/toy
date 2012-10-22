@@ -12,12 +12,10 @@ module.exports = class Dynamic extends Entity
   update: (dt) ->
     acc = @acc.copy()
     u = @vel.copy()
-    d = @damp.copy()
 
     @vel.add acc.multiply dt
-    @vel.multiply d
+    @vel.multiply @damp
 
     @pos.add ((@vel.copy().add u).divide 2).multiply dt
 
     @acc.zero()
-    super dt

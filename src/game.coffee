@@ -31,8 +31,7 @@ module.exports = class Game extends events.EventEmitter
     @init?()
 
   init: ->
-    @on 'keydown', (e) =>
-      @quit() if e.key is 'esc'
+    @quit() if @events.keyPressed sdl.K_ESCAPE
 
   run: ->
     @_init()
@@ -76,7 +75,7 @@ module.exports = class Game extends events.EventEmitter
     @render dt
 
   render: (dt) ->
-    entity.draw? @screen, dt for name, entity of @entities
+    entity.render? @renderer, dt for name, entity of @entities
     sdl.renderPresent @renderer
 
   clear: ->

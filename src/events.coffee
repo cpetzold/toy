@@ -15,6 +15,7 @@ module.exports = class Events
     @quit = false
 
     @mouse =
+      moving: false
       pos: new Vector()
 
   poll: ->
@@ -40,6 +41,7 @@ module.exports = class Events
     @buttonsPressed = {}
     @buttonsReleased = {}
     @quit = false
+    @mouse.moving = false
 
   _keyPressed: (e) =>
     @keysPressed[e.sym] = true
@@ -66,6 +68,7 @@ module.exports = class Events
     @mouse.pos.y = e.y
 
   _mouseMove: (e) ->
+    @mouse.moving = true
     @mouse.pos.x = e.x
     @mouse.pos.y = e.y
 

@@ -1,11 +1,7 @@
 module.exports = class Vector
   constructor: (@x = 0, @y) ->
-    if @x.constructor.name is 'Vector'
-      return @x
-    else if typeof @x is 'Array'
-      return new @.constructor @x[0], @x[1]
-    else if not @y?
-      @y = @x
+    @set @x, @y
+    return
   
   get: (v) ->
     new @.constructor v
@@ -14,11 +10,14 @@ module.exports = class Vector
     new @.constructor @x, @y
 
   set: (x, y) ->
-    if typeof x is 'object'
-      y = x.y
-      x = x.x
-    @x = x
-    @y = y if y?
+    if x.constructor.name is 'Vector'
+      @x = x.x
+      @y = x.y
+    else if typeof x is 'Array'
+      @x = x[0]
+      @y = x[1]
+    else if not y?
+      @y = @x = x
     @
   
   add: (v) ->
