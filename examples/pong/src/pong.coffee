@@ -7,6 +7,9 @@ module.exports = class Pong extends toy.Game
       dim: new toy.Vector 800, 600
       bgcolor: new toy.Color()
 
+    @winScore = 5
+    @debug = false
+
   init: (dt) ->
     super dt
 
@@ -16,6 +19,7 @@ module.exports = class Pong extends toy.Game
       pos: new toy.Vector(0, (@dim.y / 2) - 50)
     @cpu = new Paddle
       pos: new toy.Vector(@dim.x - 20, (@dim.y / 2) - 50)
+      speed: 1500
 
     @addEntity 'player', @player
     @addEntity 'cpu', @cpu
@@ -31,16 +35,12 @@ module.exports = class Pong extends toy.Game
 
     @ball = new Ball
       pos: @bounds.center.copy()
+    @ball.move 1000
 
     @addEntity 'ball', @ball
 
-    @reset()
-
-  reset: ->
-    @ball.pos = @bounds.center.copy()
-
   update: (dt) ->
-    @quit() if @events.quit
+    @showTitle dt
 
     halfy = @player.dim.y / 2
 
@@ -50,12 +50,59 @@ module.exports = class Pong extends toy.Game
     if @events.keyDown toy.sdl.K_DOWN
       @player.acc.y = @player.speed
 
-    @cpu.vel.y = @ball.vel.y
+    bb = @ball.bounds
+    cb = @cpu.bounds
+    wb = @bounds
 
-    fps = Math.round(1 / dt)
-    toy.sdl.setWindowTitle @window, "Score: FPS: #{fps}"
+    # CPU ai
+    # if bb.center.x > wb.center.x
+    if bb.center.y < cb.center.y
+      @cpu.acc.y = -@cpu.speed
+    else
+      @cpu.acc.y = @cpu.speed
+
+    # Ball out of bounds
+    if bb.left > wb.right
+      @player.points++
+      @win @player if @player.points is @winScore
+      @ball.reset()
+      @ball.move 1000
+    else if bb.right < wb.left
+      @cpu.points++
+      @win @cpu if @cpu.points is @winScore
+      @ball.reset()
+      @ball.move 1000
 
     super dt
+
+  showTitle: (dt) ->
+    fps = Math.round(1 / dt)
+    title = "Score: #{@player.points} - #{@cpu.points}"
+    if @debug
+       title += "FPS: #{fps}"
+    toy.sdl.setWindowTitle @window, title
+
+  reset: ->
+    @player.reset()
+    @cpu.reset()
+    @ball.reset()
+
+  win: (player) ->
+    pp = @player.points
+    cp = @cpu.points
+    @reset()
+    @pause()
+    n = 5
+    title = "#{player.name} wins #{pp} - #{cp}! Game restarting in #{n--} seconds"
+    toy.sdl.setWindowTitle @window, title
+    interval = setInterval =>
+      title = "#{player.name} wins #{pp} - #{cp}! Game restarting in #{n--} seconds"
+      toy.sdl.setWindowTitle @window, title
+      if n < 0
+        clearInterval interval
+        @unpause()
+        @ball.move()
+    , 1000
 
   render: (dt) ->
     
@@ -69,7 +116,12 @@ class Paddle extends toy.Dynamic
       dim: opts.dim ? new toy.Vector 20, 100
       damp: opts.damp ? new toy.Vector 1, 0.95
 
-    @speed = 2000
+    @speed = opts.speed ? 2000
+    @points = 0
+
+  reset: ->
+    super()
+    @points = 0
 
   handleCollision: (entity, intersection) ->
     if entity.constructor.name is 'Wall'
@@ -87,26 +139,26 @@ class Ball extends toy.Dynamic
     super
       pos: opts.pos
       dim: opts.dim ? new toy.Vector 8, 8
-      vel: opts.vel ? new toy.Vector 200, 200
+      vel: opts.vel
 
-    @mid = opts.pos
-
-  reset: ->
-    @pos = @mid.copy()
-    range = new toy.Vector -200, 200
+  move: (timeout) ->
+    range = new toy.Vector -600, 600
     vel = toy.Vector.randRange range
-    while Math.abs(vel.x) < 50 or Math.abs(vel.y) < 50
+    while Math.abs(vel.x) < 300 or Math.abs(vel.y) < 300
       vel = toy.Vector.randRange range
-    @vel = vel.copy()
 
+    clearTimeout @moveTimeout
+    @moveTimeout = setTimeout =>
+      @vel = vel.copy()
+      clearTimeout @moveTimeout
+    , timeout or 0
 
   update: (dt, events) ->
-
     if events.keyPressed toy.sdl.K_r
       @reset()
+      @move()
 
     super dt
-
 
   handleCollision: (entity, intersection) ->
     if entity.constructor.name is 'Wall'

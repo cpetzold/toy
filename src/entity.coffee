@@ -8,6 +8,12 @@ module.exports = class Entity
     @_bounds = new Rect @pos, @dim
     @collisionLayer = opts.collisionLayer ? 0
 
+    @original = {}
+    @original.pos = @pos.copy()
+
+  reset: ->
+    @pos = @original.pos.copy()
+
   @property 'bounds',
     get: ->
       @_bounds.pos = @pos

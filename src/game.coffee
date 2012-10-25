@@ -44,7 +44,8 @@ module.exports = class Game extends events.EventEmitter
     currentTime = sdl.getPerformanceCounter()
     accumulator = 0.0
 
-    while true
+    # while true
+    setInterval =>
       newTime = sdl.getPerformanceCounter()
       frameTime = (newTime - currentTime) / sdl.getPerformanceFrequency()
 
@@ -55,6 +56,7 @@ module.exports = class Game extends events.EventEmitter
       # while accumulator >= dt
       @events.poll()
 
+      @_handleInput frameTime
       if not @paused
         @_update frameTime
 
@@ -63,9 +65,16 @@ module.exports = class Game extends events.EventEmitter
 
       @clear()
       @_render dt
+    , 0
 
       # sdl.delay 1
 
+  _handleInput: (dt) ->
+    @emit 'handleInput', dt
+    @handleInput dt
+
+  handleInput: (dt) ->
+    @quit() if @events.quit
 
   _update: (dt) ->
     @emit 'update', dt
@@ -78,8 +87,6 @@ module.exports = class Game extends events.EventEmitter
     for i in [0..length - 1]
       for j in [i..length - 1]
         @entities[i].checkCollision @entities[j]
-
-
     @
 
   _render: (dt) ->
@@ -99,6 +106,15 @@ module.exports = class Game extends events.EventEmitter
     else
       entity = name
     @entities.push entity
+
+  pause: ->
+    @paused = true
+
+  unpause: ->
+    @paused = false
+
+  togglePause: ->
+    @paused = !@paused
 
   quit: =>
     @emit 'quit'
