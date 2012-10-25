@@ -1,10 +1,11 @@
 sdl = require 'sdl2'
+Rect = require './rect'
 
-exports.rect = (surface, pos, dim, color) ->
+exports.rect = (renderer, pos, dim, color) ->
   if pos.constructor.name is 'Rect'
-    rect = pos.array()
+    rect = pos
     color = dim
   else
-    rect = [ pos.x, pos.y, dim.x, dim.y ]
+    rect = new Rect pos, dim
 
-  sdl.fillRect surface, rect, color
+  sdl.renderFillRect renderer, rect.sdlRect()

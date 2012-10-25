@@ -1,5 +1,6 @@
 sdl = require 'sdl2'
 events = require 'events'
+# sys = require 'sys'
 
 Vector = require './vector'
 Rect = require './rect'
@@ -20,7 +21,7 @@ module.exports = class Game extends events.EventEmitter
 
     @iflags ?= sdl.INIT_EVERYTHING
     @wflags ?= sdl.WINDOW_SHOWN
-    @vflags ?= sdl.RENDERER_ACCELERATED
+    @vflags ?= sdl.RENDERER_ACCELERATED | sdl.RENDERER_PRESENTVSYNC
 
   _init: ->
     sdl.init @iflags
@@ -47,22 +48,23 @@ module.exports = class Game extends events.EventEmitter
       newTime = sdl.getPerformanceCounter()
       frameTime = (newTime - currentTime) / sdl.getPerformanceFrequency()
 
-      frametime = 0.1 if frameTime > 0.1
-      accumulator += frameTime
+      # frametime = 0.1 if frameTime > 0.1
+      # accumulator += frameTime
       currentTime = newTime
 
-      while accumulator >= dt
-        @events.poll()
+      # while accumulator >= dt
+      @events.poll()
 
-        if not @paused
-          @_update dt
+      if not @paused
+        @_update frameTime
 
-        @events.clear()
-        accumulator -= dt
+      @events.clear()
+        # accumulator -= dt
 
       @clear()
       @_render dt
-      sdl.delay 1
+
+      # sdl.delay 1
 
 
   _update: (dt) ->
@@ -70,7 +72,7 @@ module.exports = class Game extends events.EventEmitter
     @update dt
 
   update: (dt) ->
-    entity.update? dt for name, entity of @entities
+    entity.update? dt, @events for name, entity of @entities
 
     length = Object.keys(@entities).length
     for i in [0..length - 1]

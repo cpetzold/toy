@@ -13,9 +13,9 @@ module.exports = class Pong extends toy.Game
     # toy.sdl.showCursor 0
 
     @player = new Paddle
-      pos: new toy.Vector(50, (@dim.y / 2) - 50)
+      pos: new toy.Vector(0, (@dim.y / 2) - 50)
     @cpu = new Paddle
-      pos: new toy.Vector(@dim.x - 50, (@dim.y / 2) - 50)
+      pos: new toy.Vector(@dim.x - 20, (@dim.y / 2) - 50)
 
     @addEntity 'player', @player
     @addEntity 'cpu', @cpu
@@ -30,6 +30,7 @@ module.exports = class Pong extends toy.Game
     @addEntity 'bottom', @bottom
 
     @ball = new Ball
+      pos: @bounds.center.copy()
 
     @addEntity 'ball', @ball
 
@@ -50,6 +51,9 @@ module.exports = class Pong extends toy.Game
       @player.acc.y = @player.speed
 
     @cpu.vel.y = @ball.vel.y
+
+    fps = Math.round(1 / dt)
+    toy.sdl.setWindowTitle @window, "Score: FPS: #{fps}"
 
     super dt
 
@@ -76,12 +80,7 @@ class Paddle extends toy.Dynamic
       @vel.y = 0
 
   render: (renderer, dt) ->
-    rect =
-      x: Math.round @pos.x
-      y: Math.round @pos.y
-      w: Math.round @dim.x
-      h: Math.round @dim.y
-    toy.sdl.renderFillRect renderer, rect
+    toy.draw.rect renderer, @bounds
 
 class Ball extends toy.Dynamic
   constructor: (opts = {}) ->
@@ -90,9 +89,28 @@ class Ball extends toy.Dynamic
       dim: opts.dim ? new toy.Vector 8, 8
       vel: opts.vel ? new toy.Vector 200, 200
 
+    @mid = opts.pos
+
+  reset: ->
+    @pos = @mid.copy()
+    range = new toy.Vector -200, 200
+    vel = toy.Vector.randRange range
+    while Math.abs(vel.x) < 50 or Math.abs(vel.y) < 50
+      vel = toy.Vector.randRange range
+    @vel = vel.copy()
+
+
+  update: (dt, events) ->
+
+    if events.keyPressed toy.sdl.K_r
+      @reset()
+
+    super dt
+
+
   handleCollision: (entity, intersection) ->
     if entity.constructor.name is 'Wall'
-      @vel.multiply 1.2
+      @vel.multiply 1.01
       if @vel.y > 0
         @pos.y -= intersection.dim.y
       else if @vel.y < 0
@@ -106,18 +124,9 @@ class Ball extends toy.Dynamic
       @vel.x *= -1
 
   render: (renderer, dt) ->
-    rect =
-      x: @pos.x
-      y: @pos.y
-      w: @dim.x
-      h: @dim.y
-    toy.sdl.renderFillRect renderer, rect
+    toy.draw.rect renderer, @bounds
 
 class Wall extends toy.Entity
   render: (renderer, dt) ->
-    rect =
-      x: @pos.x
-      y: @pos.y
-      w: @dim.x
-      h: @dim.y
-    toy.sdl.renderFillRect renderer, rect
+    toy.draw.rect renderer, @bounds
+

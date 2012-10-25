@@ -1,3 +1,5 @@
+utils = require './utils'
+
 module.exports = class Vector
   constructor: (@x = 0, @y) ->
     @set @x, @y
@@ -66,6 +68,16 @@ module.exports = class Vector
     @x /= m
     @y /= m
     @
+
+  @randRange: (xrange, yrange) ->
+    if typeof xrange is 'number' and typeof yrange is 'number'
+      xrange = new @.constructor xrange, yrange
+    x = utils.randRange xrange.x, xrange.y
+    if not yrange?
+      y = utils.randRange xrange.x, xrange.y
+    else
+      y = utils.randRange yrange.x, yrange.y
+    new Vector x, y
 
   zero: ->
     @x = @y = 0

@@ -106,7 +106,11 @@ module.exports = class Rect
 
 
 
-  array: -> [ @pos.x, @pos.y, @dim.x, @dim.y ]
+  sdlRect: ->
+    x: @pos.x
+    y: @pos.y
+    w: @dim.x
+    h: @dim.y
   
   toString: ->
     'r[ ' + @pos[0] + ', ' + @pos[1] + ', ' + @dim[0] + ', ' + @dim[1] + ' ]'

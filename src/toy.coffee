@@ -7,6 +7,7 @@ module.exports =
   sdl: sdl
 
   draw: require './draw'
+  utils: require './utils'
   
   Game: require './game'
   Entity: require './entity'
