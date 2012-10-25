@@ -40,6 +40,36 @@ module.exports = class Rect
     set: (right) ->
       @pos.x = right - @dim.x
 
+  @property 'topleft',
+    get: ->
+      @pos
+    set: (topleft) ->
+      @pos = topleft
+
+  @property 'bottomleft',
+    get: ->
+      bottomleft = @pos.copy()
+      bottomleft.y += @dim.y
+    set: (bottomleft) ->
+      bottomleft -= @dim.y
+      @pos = bottomleft
+
+  @property 'topright',
+    get: ->
+      topright = @pos.copy()
+      topright.x += @dim.x
+    set: (topright) ->
+      topright -= @dim.x
+      @pos = topright
+
+  @property 'bottomright',
+    get: ->
+      bottomright = @pos.copy()
+      bottomright.add @dim
+    set: (bottomright) ->
+      bottomright.subtract @dim
+      @pos = bottomright
+
   @property 'center',
     get: ->
       center = @pos.copy()
@@ -49,6 +79,32 @@ module.exports = class Rect
       @pos.set center
       offset = @dim.copy().divide 2
       @pos.set center.subtract(offset)
+
+  intersection: (r) ->
+    left = Math.max @left, r.left
+    right = Math.min @right, r.right
+
+    if left <= right
+      top = Math.max @top, r.top
+      bottom = Math.min @bottom, r.bottom
+
+      if top <= bottom
+        return new Rect left, top, right - left, bottom - top
+
+    return null
+
+  intersects: (r) ->
+    !!@intersection r
+
+  containsPoint: (p) ->
+    p.gte @topleft and p.lte @bottomright
+
+  contains: (r) ->
+    if r.constructor.name is 'Vector'
+      @containsPoint r
+    else
+
+
 
   array: -> [ @pos.x, @pos.y, @dim.x, @dim.y ]
   

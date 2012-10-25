@@ -19,6 +19,12 @@ module.exports = class Vector
     else if not y?
       @y = @x = x
     @
+
+  eq: (v) -> @x is v.x and @y is v.y
+  gt: (v) -> @x > v.x and @y > v.y
+  gte: (v) -> @x >= v.x and @y >= v.y
+  lt: (v) -> @x < v.x and @y < v.y
+  lte: (v) -> @x <= v.x and @y <= v.y
   
   add: (v) ->
     v = @get v

@@ -2,12 +2,15 @@ sdl = require 'sdl2'
 events = require 'events'
 
 Vector = require './vector'
+Rect = require './rect'
 Events = require './events'
 
 module.exports = class Game extends events.EventEmitter
-  constructor: ({ @name, @dim, @fps, @iflags, @vflags, @wflags, @bgcolor } = {}) ->
+  constructor: ({ @name, @dim, @pos, @fps, @iflags, @vflags, @wflags, @bgcolor } = {}) ->
     @name ?= 'Toy'
     @dim ?= new Vector 800, 600
+    @pos ?= new Vector sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED
+    @_bounds ?= new Rect new Vector(), @dim
     @fps ?= 60
     @paused = false
 
@@ -23,7 +26,7 @@ module.exports = class Game extends events.EventEmitter
     sdl.init @iflags
 
     c = sdl.WINDOWPOS_CENTERED
-    @window = sdl.createWindow @name, c, c, @dim.x, @dim.y, @wflags
+    @window = sdl.createWindow @name, @pos.x, @pos.y, @dim.x, @dim.y, @wflags
 
     @renderer = sdl.createRenderer @window, -1, @vflags
 
@@ -68,6 +71,13 @@ module.exports = class Game extends events.EventEmitter
 
   update: (dt) ->
     entity.update? dt for name, entity of @entities
+
+    length = Object.keys(@entities).length
+    for i in [0..length - 1]
+      for j in [i..length - 1]
+        @entities[i].checkCollision @entities[j]
+
+
     @
 
   _render: (dt) ->
@@ -92,4 +102,11 @@ module.exports = class Game extends events.EventEmitter
     @emit 'quit'
     sdl.quit()
     process.exit 0
+
+  @property 'bounds',
+    get: ->
+      @_bounds.dim = @dim
+      @_bounds
+    set: (bounds) ->
+      @dim = bounds.dim
 

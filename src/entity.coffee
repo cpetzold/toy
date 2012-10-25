@@ -6,6 +6,7 @@ module.exports = class Entity
     @pos = opts.pos ? new Vector
     @dim = opts.dim ? new Vector
     @_bounds = new Rect @pos, @dim
+    @collisionLayer = opts.collisionLayer ? 0
 
   @property 'bounds',
     get: ->
@@ -15,3 +16,12 @@ module.exports = class Entity
     set: (bounds) ->
       @pos = bounds.pos
       @dim = bounds.dim
+
+  checkCollision: (entity) ->
+    if @ is entity or @collisionLayer isnt entity.collisionLayer
+      return
+
+    intersection = @bounds.intersection entity.bounds
+    if intersection
+      @handleCollision? entity, intersection
+      entity.handleCollision? @, intersection
